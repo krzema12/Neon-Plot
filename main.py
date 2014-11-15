@@ -13,6 +13,17 @@ class NeonPlot:
         window.connect("destroy", self.onDeleteWindow)
         window.show_all()
         
+        self.functions = []
+        
+        self.functionsVbox = builder.get_object("functionsVbox")
+        self.addFunctionButton = builder.get_object("addFuncitonButton")
+        
+        #test = builder.get_object("eventbox1")
+        #test.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color("#FF8"))
+        
+        #entry = builder.get_object("entry1")
+        #entry.modify_base(gtk.STATE_NORMAL, gtk.gdk.Color("#F88"))
+        
     def canvasExposeEvent(self, widget, event):
         cr = widget.window.cairo_create()
         
@@ -29,6 +40,44 @@ class NeonPlot:
         
         return True
     
+    def addFunction(self, widget):
+        # creating a new GtkEventBox
+        eventBox = gtk.EventBox()
+        eventBox.show()
+        
+        # creating a new GtkFixed and setting its height
+        fixed = gtk.Fixed()
+        fixed.show()
+        fixed.set_size_request(-1, 60)
+        
+        # creating a new "x" button
+        removeButton = gtk.Button()
+        removeButton.show()
+        removeButton.set_size_request(18, 18)
+        removeButton.set_label("x")
+        removeButton.connect("clicked", self.removeFunction, eventBox)
+        fixed.put(removeButton, 222, 2)
+        
+        # creating a new text field
+        textField = gtk.Entry()
+        textField.show()
+        textField.set_size_request(230, 27)
+        fixed.put(textField, 10, 23)
+        
+        eventBox.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color("#0F0"))
+
+        # adding the event box as a child of the functionsVbox
+        eventBox.add(fixed)
+        self.functionsVbox.pack_start(eventBox, False, True, 1)
+        
+        # move the function adding button to the end of the Vbox
+        self.functionsVbox.reorder_child(self.addFunctionButton, -1)
+        
+        print self.functions
+        
+    def removeFunction(self, widget, arg):
+        self.functionsVbox.remove(arg)
+
     def onDeleteWindow(self, *args):
         gtk.main_quit(*args)
 
