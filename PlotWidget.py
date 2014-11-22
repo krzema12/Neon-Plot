@@ -72,12 +72,7 @@ class PlotWidget(gtk.DrawingArea):
         return True
 
     def mouse_scroll(self, widget, event):
-
-        # cursor position to plot coordinates
-        x = Point(self.cursor_position.x - self.area.width/2, -(self.cursor_position.y - self.area.height/2))
-        y = x/self.scale
-        z = y + self.center
-
+        z = self.to_plot_coordinates(self.cursor_position)
         g = z - self.center
 
         if event.direction == gdk.SCROLL_UP:
@@ -100,6 +95,11 @@ class PlotWidget(gtk.DrawingArea):
         y = x*self.scale
         return Point(self.area.width/2 + y.x, self.area.height/2 - y.y)
 
+    def to_plot_coordinates(self, point):
+        x = Point(point.x - self.area.width/2, -(point.y - self.area.height/2))
+        y = x/self.scale
+        return y + self.center
+
     def expose(self, widget, event):
         self.area = event.area
         cr = widget.window.cairo_create()
@@ -108,7 +108,23 @@ class PlotWidget(gtk.DrawingArea):
         cr.set_source_rgb(0.1, 0.1, 0.1)
         cr.paint()
 
-        # small square (for testing purposes)
+        # axes
+        center_on_screen = self.to_screen_coordinates(Point(0, 0))
+        cr.set_source_rgb(0.5, 0.5, 0.5)
+
+        # Y axis
+        cr.set_line_width(1.0)
+        cr.move_to(center_on_screen.x + 0.5, 0.0)
+        cr.line_to(center_on_screen.x + 0.5, self.area.height)
+        cr.stroke()
+
+        # X axis
+        cr.set_line_width(1.0)
+        cr.move_to(0.0, center_on_screen.y + 0.5)
+        cr.line_to(self.area.width, center_on_screen.y + 0.5)
+        cr.stroke()
+
+        # squares (for testing purposes)
 
         z = self.to_screen_coordinates(Point(0.0, 0.0))
         cr.set_source_rgb(0, 128, 0)
@@ -118,6 +134,12 @@ class PlotWidget(gtk.DrawingArea):
 
         t = self.to_screen_coordinates(Point(1.0, 1.0))
         cr.set_source_rgb(1.0, 0, 0)
+        cr.set_line_width(2.0)
+        cr.rectangle(t.x, t.y, 6, 6)
+        cr.fill()
+
+        t = self.to_screen_coordinates(Point(-4.0, 2.0))
+        cr.set_source_rgb(0.5, 0.5, 1.0)
         cr.set_line_width(2.0)
         cr.rectangle(t.x, t.y, 6, 6)
         cr.fill()
