@@ -1,5 +1,10 @@
-#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
+# !/usr/bin/env python
+__author__ = 'Piotr Krzemiński'
+
 import gtk
+import gobject
+from PlotWidget import PlotWidget
 
 
 class NeonPlot:
@@ -18,27 +23,16 @@ class NeonPlot:
         self.functionsVbox = builder.get_object("functionsVbox")
         self.addFunctionButton = builder.get_object("addFuncitonButton")
 
+        self.eventbox1 = builder.get_object("eventbox1")
+        plotWidget = PlotWidget()
+        plotWidget.show()
+        self.eventbox1.add(plotWidget)
+
         # test = builder.get_object("eventbox1")
         #test.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color("#FF8"))
 
         #entry = builder.get_object("entry1")
         #entry.modify_base(gtk.STATE_NORMAL, gtk.gdk.Color("#F88"))
-
-    def canvasExposeEvent(self, widget, event):
-        cr = widget.window.cairo_create()
-
-        # background
-        cr.set_source_rgb(0, 0, 0)
-        cr.paint()
-
-        # lines
-        cr.set_source_rgb(0, 128, 0)
-        cr.set_line_width(2.0)
-        cr.move_to(5, 5)
-        cr.line_to(20, 50)
-        cr.stroke()
-
-        return True
 
     def addFunction(self, widget):
         # creating a new GtkEventBox
@@ -81,6 +75,7 @@ class NeonPlot:
     def onDeleteWindow(self, *args):
         gtk.main_quit(*args)
 
-
-neonPlot = NeonPlot()
-gtk.main()
+if __name__ == "__main__":
+    gobject.type_register(PlotWidget)
+    neonPlot = NeonPlot()
+    gtk.main()
