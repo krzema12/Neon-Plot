@@ -39,8 +39,7 @@ class NeonPlot:
         #entry.modify_base(gtk.STATE_NORMAL, gtk.gdk.Color("#F88"))
 
     def update_plotview_status_bar(self, widget):
-        self.viewParamsStatusBar.set_text('Widok: ' + str(widget.center) + ', X: ' + str(round(widget.scale.x, 5))
-                                          + ' px/j, Y: ' + str(round(widget.scale.y, 5)) + ' px/j')
+        self.viewParamsStatusBar.set_text('Środek: ' + str(widget.center) + ', skala: ' + str(widget.scale) + ' px/j')
 
     def addFunction(self, widget):
         # creating a new GtkEventBox

@@ -4,6 +4,8 @@ __author__ = 'Piotr Krzemiński'
 import gtk
 import copy
 import gobject
+import math
+from math import log10
 from gtk import gdk
 
 
@@ -34,6 +36,16 @@ class Point:
         return '(' + str(round(self.x, 5)) + ', ' + str(round(self.y, 5)) + ')'
 
 
+def round_to_nearest(x, base=5):
+    return int(base * math.ceil(float(x)/base))
+
+
+def frange(x, y, jump):
+  while x < y:
+    yield x
+    x += jump
+
+
 class PlotWidget(gtk.DrawingArea):
 
     SCROLL_RATIO = 1.2
@@ -59,6 +71,7 @@ class PlotWidget(gtk.DrawingArea):
         self.functions = []
         self.center = Point(0.0, 0.0)
         self.scale = Point(100.0, 100.0)
+        self.__calculate_grid_spacing()
         self.show_cursor = True
         self.cursor_position = None
         self.cursor_position_before_dragging = None
@@ -104,9 +117,16 @@ class PlotWidget(gtk.DrawingArea):
         else:
             self.scale /= self.SCROLL_RATIO
 
+        self.__calculate_grid_spacing()
+        print self.gridSpacing
         self.update_view_info()
         self.queue_draw()
+
         return True
+
+    def __calculate_grid_spacing(self):
+        self.gridSpacing = Point(pow(10, -math.floor(log10(self.scale.x)) + 1),
+                                 pow(10, -math.floor(log10(self.scale.y)) + 1))
 
     def button_press_event(self, widget, args):
         self.cursor_position_before_dragging = copy.copy(self.cursor_position)
@@ -128,6 +148,30 @@ class PlotWidget(gtk.DrawingArea):
     def update_view_info(self):
         self.emit('view_updated')
 
+    def draw_vertical_gridline(self, cr, lower_right, upper_left, spacing_multiplier = 1):
+        start_x = upper_left.x - (upper_left.x % (self.gridSpacing.x*spacing_multiplier))
+        end_x = lower_right.x + (lower_right.x % (self.gridSpacing.x*spacing_multiplier))
+
+        start_x = self.to_screen_coordinates(Point(start_x, 0)).x
+        end_x = self.to_screen_coordinates(Point(end_x, 0)).x
+
+        for x in frange(start_x, end_x, self.gridSpacing.x*spacing_multiplier*self.scale.x):
+            cr.move_to(x + 0.5, 0.0)
+            cr.line_to(x + 0.5, self.area.height)
+            cr.stroke()
+
+    def draw_horizontal_gridlline(self, cr, lower_right, upper_left, spacing_multiplier = 1):
+        start_y = lower_right.y - (lower_right.y % (self.gridSpacing.y*spacing_multiplier))
+        end_y = upper_left.y - (upper_left.y % (self.gridSpacing.y*spacing_multiplier))
+
+        start_y = self.to_screen_coordinates(Point(0, start_y)).y
+        end_y = self.to_screen_coordinates(Point(0, end_y)).y
+
+        for y in frange(end_y, start_y, self.gridSpacing.y*spacing_multiplier*self.scale.y):
+            cr.move_to(0.0, y + 0.5)
+            cr.line_to(self.area.width, y + 0.5)
+            cr.stroke()
+
     def expose(self, widget, event):
         self.area = event.area
         cr = widget.window.cairo_create()
@@ -136,18 +180,44 @@ class PlotWidget(gtk.DrawingArea):
         cr.set_source_rgb(0.1, 0.1, 0.1)
         cr.paint()
 
+        # grid
+
+        upper_left = self.to_plot_coordinates(Point(0, 0))
+        lower_right = self.to_plot_coordinates(Point(self.area.width, self.area.height))
+
+        # X grid (vertical lines)
+
+        cr.set_source_rgb(0.25, 0.25, 0.25)
+        cr.set_line_width(0.5)
+        self.draw_vertical_gridline(cr, lower_right, upper_left)
+
+        cr.set_source_rgb(0.25, 0.25, 0.25)
+        cr.set_line_width(2.0)
+        self.draw_vertical_gridline(cr, lower_right, upper_left, 10)
+
+        # Y grid (horizontal lines)
+
+        cr.set_source_rgb(0.25, 0.25, 0.25)
+        cr.set_line_width(0.5)
+        self.draw_horizontal_gridlline(cr, lower_right, upper_left)
+
+        cr.set_source_rgb(0.25, 0.25, 0.25)
+        cr.set_line_width(2.0)
+        self.draw_horizontal_gridlline(cr, lower_right, upper_left, 10)
+
         # axes
+
         center_on_screen = self.to_screen_coordinates(Point(0, 0))
-        cr.set_source_rgb(0.5, 0.5, 0.5)
+        cr.set_source_rgb(0.75, 0.75, 0.75)
 
         # Y axis
-        cr.set_line_width(1.0)
+        cr.set_line_width(2.0)
         cr.move_to(center_on_screen.x + 0.5, 0.0)
         cr.line_to(center_on_screen.x + 0.5, self.area.height)
         cr.stroke()
 
         # X axis
-        cr.set_line_width(1.0)
+        cr.set_line_width(2.0)
         cr.move_to(0.0, center_on_screen.y + 0.5)
         cr.line_to(self.area.width, center_on_screen.y + 0.5)
         cr.stroke()
