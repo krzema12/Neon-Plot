@@ -26,20 +26,26 @@ class NeonPlot:
         self.viewParamsStatusBar = builder.get_object('viewParamsLabel')
 
         self.eventbox1 = builder.get_object("eventbox1")
-        plotWidget = PlotWidget()
-        plotWidget.connect('view_updated', self.update_plotview_status_bar)
-        plotWidget.update_view_info()
-        plotWidget.show()
-        self.eventbox1.add(plotWidget)
+        self.plotWidget = PlotWidget()
+        self.plotWidget.connect('view_updated', self.update_plotview_status_bar)
+        self.plotWidget.update_view_info()
+        self.plotWidget.show()
+        self.eventbox1.add(self.plotWidget)
+
+        #self.viewCursorMenuItem = builder.get_object('viewCursor')
+        #self.viewCursorMenuItem.connect("toggled", self.viewCursor_toggled_cb)
 
         # test = builder.get_object("eventbox1")
         #test.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color("#FF8"))
 
-        #entry = builder.get_object("entry1")
-        #entry.modify_base(gtk.STATE_NORMAL, gtk.gdk.Color("#F88"))
-
     def update_plotview_status_bar(self, widget):
         self.viewParamsStatusBar.set_text('Środek: ' + str(widget.center) + ', skala: ' + str(widget.scale) + ' px/j')
+
+    def viewCursor_toggled_cb(self, widget):
+        self.plotWidget.show_cursor = widget.active
+
+    def viewGridlines_toggled_cb(self, widget):
+        self.plotWidget.show_gridlines = widget.active
 
     def addFunction(self, widget):
         # creating a new GtkEventBox
