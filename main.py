@@ -23,8 +23,12 @@ class NeonPlot:
         self.functionsVbox = builder.get_object("functionsVbox")
         self.addFunctionButton = builder.get_object("addFuncitonButton")
 
+        self.viewParamsStatusBar = builder.get_object('viewParamsLabel')
+
         self.eventbox1 = builder.get_object("eventbox1")
         plotWidget = PlotWidget()
+        plotWidget.connect('view_updated', self.update_plotview_status_bar)
+        plotWidget.update_view_info()
         plotWidget.show()
         self.eventbox1.add(plotWidget)
 
@@ -33,6 +37,10 @@ class NeonPlot:
 
         #entry = builder.get_object("entry1")
         #entry.modify_base(gtk.STATE_NORMAL, gtk.gdk.Color("#F88"))
+
+    def update_plotview_status_bar(self, widget):
+        self.viewParamsStatusBar.set_text('Widok: ' + str(widget.center) + ', X: ' + str(round(widget.scale.x, 5))
+                                          + ' px/j, Y: ' + str(round(widget.scale.y, 5)) + ' px/j')
 
     def addFunction(self, widget):
         # creating a new GtkEventBox

@@ -2,6 +2,8 @@
 __author__ = 'Piotr Krzemiński'
 
 import gtk
+import copy
+import gobject
 from gtk import gdk
 
 
@@ -29,28 +31,38 @@ class Point:
         return Point(self.x - other.x, self.y - other.y)
 
     def __str__(self):
-        return '(' + str(self.x) + ', ' + str(self.y) + ')'
+        return '(' + str(round(self.x, 5)) + ', ' + str(round(self.y, 5)) + ')'
 
 
 class PlotWidget(gtk.DrawingArea):
 
     SCROLL_RATIO = 1.2
 
+    __gsignals__ = {
+        'view_updated': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ()),
+    }
+
     def __init__(self):
         gtk.DrawingArea.__init__(self)
+
         self.connect("expose-event", self.expose)
         self.connect("motion_notify_event", self.motion_notify_event)
         self.connect("enter_notify_event", self.enter_notify_event)
         self.connect("leave_notify_event", self.leave_notify_event)
         self.connect("scroll_event", self.mouse_scroll)
+        self.connect("button-press-event", self.button_press_event)
+        self.connect("button-release-event", self.button_release_event)
         self.set_events(self.get_events() | gtk.gdk.POINTER_MOTION_MASK |
-                        gtk.gdk.LEAVE_NOTIFY_MASK | gtk.gdk.ENTER_NOTIFY_MASK | gtk.gdk.SCROLL_MASK)
+                        gtk.gdk.LEAVE_NOTIFY_MASK | gtk.gdk.ENTER_NOTIFY_MASK | gtk.gdk.SCROLL_MASK |
+                        gtk.gdk.BUTTON_PRESS_MASK | gtk.gdk.BUTTON_RELEASE_MASK)
 
         self.functions = []
         self.center = Point(0.0, 0.0)
         self.scale = Point(100.0, 100.0)
         self.show_cursor = True
         self.cursor_position = None
+        self.cursor_position_before_dragging = None
+        self.mouse_button_pressed = False
         self.area = gtk.gdk.Rectangle(0, 0, 0, 0)
 
     def do_realize(self):
@@ -58,6 +70,11 @@ class PlotWidget(gtk.DrawingArea):
 
     def motion_notify_event(self, widget, event):
         self.cursor_position.x, self.cursor_position.y = event.x, event.y
+
+        if self.mouse_button_pressed:
+            self.center -= (self.cursor_position - self.cursor_position_before_dragging)*Point(1.0, -1.0)/self.scale
+            self.cursor_position_before_dragging = copy.copy(self.cursor_position)
+
         self.queue_draw()
         return True
 
@@ -87,8 +104,16 @@ class PlotWidget(gtk.DrawingArea):
         else:
             self.scale /= self.SCROLL_RATIO
 
+        self.update_view_info()
         self.queue_draw()
         return True
+
+    def button_press_event(self, widget, args):
+        self.cursor_position_before_dragging = copy.copy(self.cursor_position)
+        self.mouse_button_pressed = True
+
+    def button_release_event(self, widget, args):
+        self.mouse_button_pressed = False
 
     def to_screen_coordinates(self, point):
         x = point - self.center
@@ -99,6 +124,9 @@ class PlotWidget(gtk.DrawingArea):
         x = Point(point.x - self.area.width/2, -(point.y - self.area.height/2))
         y = x/self.scale
         return y + self.center
+
+    def update_view_info(self):
+        self.emit('view_updated')
 
     def expose(self, widget, event):
         self.area = event.area
