@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 __author__ = 'Piotr Krzemiński'
 
-import math
+from math import *
 
 
 class PythonFunctionEvaluator(object):

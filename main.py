@@ -3,7 +3,9 @@
 __author__ = 'Piotr Krzemiński'
 
 import gtk
-import gobject
+from PythonFunctionEvaluator import PythonFunctionEvaluator
+from DrawableFunction import DrawableFunction
+from ColorSelectionWindow import ColorSelectionWindow
 from PlotWidget import PlotWidget
 
 
@@ -17,8 +19,6 @@ class NeonPlot:
         window = builder.get_object("mainWindow")
         window.connect("destroy", self.onDeleteWindow)
         window.show_all()
-
-        self.functions = []
 
         self.functionsVbox = builder.get_object("functionsVbox")
         self.addFunctionButton = builder.get_object("addFuncitonButton")
@@ -47,31 +47,53 @@ class NeonPlot:
     def viewGridlines_toggled_cb(self, widget):
         self.plotWidget.show_gridlines = widget.active
 
+    def open_about_window_cb(self, widget):
+        filename = "AboutWindow.glade"
+        builder = gtk.Builder()
+        builder.add_from_file(filename)
+        builder.connect_signals(self)
+        window = builder.get_object("aboutWindow")
+        window.show_all()
+
     def addFunction(self, widget):
-        # creating a new GtkEventBox
+
+        # DrawableFunction
+        drawableFunction = DrawableFunction()
+        self.plotWidget.add_function(drawableFunction)
+
+        # GtkEventBox (will contain all elements)
         eventBox = gtk.EventBox()
         eventBox.show()
 
-        # creating a new GtkFixed and setting its height
+        # GtkFixed and setting its height
         fixed = gtk.Fixed()
         fixed.show()
         fixed.set_size_request(-1, 60)
 
-        # creating a new "x" button
+        # "x" button
         removeButton = gtk.Button()
         removeButton.show()
-        removeButton.set_size_request(18, 18)
-        removeButton.set_label("x")
-        removeButton.connect("clicked", self.removeFunction, eventBox)
-        fixed.put(removeButton, 222, 2)
+        removeButton.set_size_request(45, 18)
+        removeButton.set_label('usuń')
+        removeButton.connect("clicked", self.removeFunction, drawableFunction, eventBox)
+        fixed.put(removeButton, 197, 2)
 
-        # creating a new text field
+        # "choose color" button
+        changeColorButton = gtk.Button()
+        changeColorButton.show()
+        changeColorButton.set_size_request(73, 18)
+        changeColorButton.set_label('zmień kolor')
+        changeColorButton.connect("clicked", self.changeColor, drawableFunction, eventBox)
+        fixed.put(changeColorButton, 120, 2)
+
+        # text field
         textField = gtk.Entry()
         textField.show()
         textField.set_size_request(230, 27)
+        textField.connect('changed', self.editFunction, drawableFunction)
         fixed.put(textField, 10, 23)
 
-        eventBox.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color("#0F0"))
+        eventBox.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color("#888"))
 
         # adding the event box as a child of the functionsVbox
         eventBox.add(fixed)
@@ -80,15 +102,23 @@ class NeonPlot:
         # move the function adding button to the end of the Vbox
         self.functionsVbox.reorder_child(self.addFunctionButton, -1)
 
-        print self.functions
+    def editFunction(self, entry, drawableFunction):
+        newText = entry.get_text()
+        drawableFunction.function_evaluator.set_function(newText)
+        self.plotWidget.queue_draw()
 
-    def removeFunction(self, widget, arg):
-        self.functionsVbox.remove(arg)
+    def changeColor(self, button, drawableFunction, eventBox):
+        csw = ColorSelectionWindow(self.plotWidget, drawableFunction, eventBox)
+        csw.show_window()
+
+    def removeFunction(self, widget, drawableFunction, eventBox):
+        self.plotWidget.functions.remove(drawableFunction)
+        self.functionsVbox.remove(eventBox)
+        self.plotWidget.queue_draw()
 
     def onDeleteWindow(self, *args):
         gtk.main_quit(*args)
 
 if __name__ == "__main__":
-    gobject.type_register(PlotWidget)
     neonPlot = NeonPlot()
     gtk.main()

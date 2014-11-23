@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk+" version="2.24"/>
+  <!-- interface-naming-policy project-wide -->
+  <object class="GtkWindow" id="colorSelectionWindow">
+    <property name="can_focus">False</property>
+    <property name="title" translatable="yes">Wybierz kolor funkcji</property>
+    <property name="resizable">False</property>
+    <property name="modal">True</property>
+    <property name="window_position">center</property>
+    <child>
+      <object class="GtkColorSelection" id="colorSelector">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="current_color">#000000000000</property>
+        <signal name="color-changed" handler="on_colorSelector_color_changed" swapped="no"/>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

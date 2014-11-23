@@ -5,6 +5,7 @@
   <object class="GtkWindow" id="mainWindow">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">neon plot</property>
+    <property name="window_position">center</property>
     <property name="default_width">1400</property>
     <property name="default_height">800</property>
     <child>
@@ -145,6 +146,7 @@
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">_O programie...</property>
                         <property name="use_underline">True</property>
+                        <signal name="activate" handler="open_about_window_cb" swapped="no"/>
                       </object>
                     </child>
                   </object>

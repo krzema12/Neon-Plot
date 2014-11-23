@@ -5,8 +5,9 @@ import gtk
 import copy
 import gobject
 import math
-from math import log10
+from math import log10, sin
 from gtk import gdk
+from PythonFunctionEvaluator import PythonFunctionEvaluator
 
 
 class Point:
@@ -34,6 +35,12 @@ class Point:
 
     def __str__(self):
         return '(' + str(round(self.x, 5)) + ', ' + str(round(self.y, 5)) + ')'
+
+
+class ColorRGB:
+
+    def __init__(self, r, g, b):
+        self.r, self.g, self.b = r, g, b
 
 
 def round_to_nearest(x, base=5):
@@ -84,12 +91,16 @@ class PlotWidget(gtk.DrawingArea):
         gtk.DrawingArea.do_realize(self)
 
     def motion_notify_event(self, widget, event):
+        if self.cursor_position is None:
+            return
+
         self.cursor_position.x, self.cursor_position.y = event.x, event.y
 
         if self.mouse_button_pressed:
             self.center -= (self.cursor_position - self.cursor_position_before_dragging)*Point(1.0, -1.0)/self.scale
             self.cursor_position_before_dragging = copy.copy(self.cursor_position)
 
+        self.update_view_info()
         self.queue_draw()
         return True
 
@@ -120,11 +131,13 @@ class PlotWidget(gtk.DrawingArea):
             self.scale /= self.SCROLL_RATIO
 
         self.__calculate_grid_spacing()
-        print self.gridSpacing
         self.update_view_info()
         self.queue_draw()
 
         return True
+
+    def add_function(self, function):
+        self.functions.append(function)
 
     def __calculate_grid_spacing(self):
         self.gridSpacing = Point(pow(10, -math.floor(log10(self.scale.x) + 0.2) + 1),
@@ -225,27 +238,28 @@ class PlotWidget(gtk.DrawingArea):
         cr.line_to(self.area.width, center_on_screen.y + 0.5)
         cr.stroke()
 
-        # squares (for testing purposes)
+        # drawing functions
 
-        z = self.to_screen_coordinates(Point(0.0, 0.0))
-        cr.set_source_rgb(0, 128, 0)
-        cr.set_line_width(2.0)
-        cr.rectangle(z.x, z.y, 6, 6)
-        cr.fill()
+        for f in self.functions:
 
-        t = self.to_screen_coordinates(Point(1.0, 1.0))
-        cr.set_source_rgb(1.0, 0, 0)
-        cr.set_line_width(2.0)
-        cr.rectangle(t.x, t.y, 6, 6)
-        cr.fill()
+            if f.enabled is False or f.function_evaluator.can_be_drawn is False:
+                continue
 
-        t = self.to_screen_coordinates(Point(-4.0, 2.0))
-        cr.set_source_rgb(0.5, 0.5, 1.0)
-        cr.set_line_width(2.0)
-        cr.rectangle(t.x, t.y, 6, 6)
-        cr.fill()
+            cr.set_source_rgb(f.color.r, f.color.g, f.color.b)
+            cr.set_line_width(2.0)
+            cr.move_to(-10, self.area.height/2)
+
+            for x in frange(0, self.area.width, 2):
+                plot_space_x = self.to_plot_coordinates(Point(x, 0)).x
+                y = f.function_evaluator.evaluate(plot_space_x)
+                point_screen_space = self.to_screen_coordinates(Point(plot_space_x, y))
+                cr.line_to(point_screen_space.x, point_screen_space.y)
+                cr.move_to(point_screen_space.x, point_screen_space.y)
+
+            cr.stroke()
 
         # cursor
+
         if self.show_cursor is True and self.cursor_position is not None:
             cr.set_source_rgb(0.5, 0.5, 0.5)
             cr.set_dash({5.0, 5.0})
