@@ -14,14 +14,18 @@ class PythonFunctionEvaluator(object):
         self.x = 0
 
     def __validate(self):
+        self.can_be_drawn = False
+        self.errors = None
+
         if self.function_string == "":
-            self.can_be_drawn = False
-            self.errors = None
             return
 
         try:
-            self.__evaluate()
-        except (SyntaxError, AttributeError) as ex:
+            val = self.__evaluate()
+
+            if type(float(val)) is not float:
+                return
+        except (SyntaxError, AttributeError, NameError) as ex:
             self.errors = ex
             return
         except Exception as e:  # unknown error
@@ -34,6 +38,7 @@ class PythonFunctionEvaluator(object):
     def set_function(self, string):
         self.function_string = string
         self.__validate()
+        print self.can_be_drawn
 
     def evaluate(self, x_param):
         try:

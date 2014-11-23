@@ -9,4 +9,4 @@ class DrawableFunction(object):
     def __init__(self):
         self.function_evaluator = PythonFunctionEvaluator()
         self.enabled = True
-        self.color = ColorRGB(0.5, 0.5, 0.5)
+        self.color = ColorRGB(0.8, 0.8, 0.8)

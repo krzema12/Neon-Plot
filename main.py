@@ -93,7 +93,7 @@ class NeonPlot:
         textField.connect('changed', self.editFunction, drawableFunction)
         fixed.put(textField, 10, 23)
 
-        eventBox.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color("#888"))
+        eventBox.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color("#CCCCCC"))
 
         # adding the event box as a child of the functionsVbox
         eventBox.add(fixed)
@@ -101,6 +101,9 @@ class NeonPlot:
 
         # move the function adding button to the end of the Vbox
         self.functionsVbox.reorder_child(self.addFunctionButton, -1)
+
+        # placing cursor in the newly added Entry
+        textField.grab_focus()
 
     def editFunction(self, entry, drawableFunction):
         newText = entry.get_text()
