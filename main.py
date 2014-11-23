@@ -121,6 +121,10 @@ class NeonPlot:
     def editFunction(self, entry, drawableFunction):
         newText = entry.get_text()
         drawableFunction.function_evaluator.set_function(newText)
+
+        entry.modify_base(gtk.STATE_NORMAL,
+                          gtk.gdk.Color("#FFF" if drawableFunction.function_evaluator.can_be_drawn else "#F66"))
+
         self.plotWidget.queue_draw()
 
     def changeColor(self, button, drawableFunction, eventBox):
