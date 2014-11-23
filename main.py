@@ -93,6 +93,15 @@ class NeonPlot:
         textField.connect('changed', self.editFunction, drawableFunction)
         fixed.put(textField, 10, 23)
 
+        # "draw' checkbox
+        checkBox = gtk.CheckButton()
+        checkBox.show()
+        checkBox.set_size_request(70, 27)
+        checkBox.set_label('aktywna')
+        checkBox.set_active(True)
+        checkBox.connect('toggled', self.showOrHideFunction, drawableFunction)
+        fixed.put(checkBox, 10, 0)
+
         eventBox.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color("#CCCCCC"))
 
         # adding the event box as a child of the functionsVbox
@@ -104,6 +113,10 @@ class NeonPlot:
 
         # placing cursor in the newly added Entry
         textField.grab_focus()
+
+    def showOrHideFunction(self, checkBox, drawableFunction):
+        drawableFunction.enabled = checkBox.get_active()
+        self.plotWidget.queue_draw()
 
     def editFunction(self, entry, drawableFunction):
         newText = entry.get_text()

@@ -12,7 +12,7 @@
       <object class="GtkColorSelection" id="colorSelector">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
-        <property name="current_color">#000000000000</property>
+        <property name="current_color">#cccccccccccc</property>
         <signal name="color-changed" handler="on_colorSelector_color_changed" swapped="no"/>
         <child>
           <placeholder/>
