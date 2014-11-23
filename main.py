@@ -73,7 +73,7 @@ class NeonPlot:
         # "x" button
         removeButton = gtk.Button()
         removeButton.show()
-        removeButton.set_size_request(45, 18)
+        removeButton.set_size_request(45, 21)
         removeButton.set_label('usuń')
         removeButton.connect("clicked", self.removeFunction, drawableFunction, eventBox)
         fixed.put(removeButton, 197, 2)
@@ -81,7 +81,7 @@ class NeonPlot:
         # "choose color" button
         changeColorButton = gtk.Button()
         changeColorButton.show()
-        changeColorButton.set_size_request(73, 18)
+        changeColorButton.set_size_request(73, 21)
         changeColorButton.set_label('zmień kolor')
         changeColorButton.connect("clicked", self.changeColor, drawableFunction, eventBox)
         fixed.put(changeColorButton, 120, 2)

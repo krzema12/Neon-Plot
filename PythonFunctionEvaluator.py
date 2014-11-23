@@ -38,7 +38,6 @@ class PythonFunctionEvaluator(object):
     def set_function(self, string):
         self.function_string = string
         self.__validate()
-        print self.can_be_drawn
 
     def evaluate(self, x_param):
         try:

@@ -36,10 +36,10 @@ class PythonFunctionEvaluatorTests(unittest.TestCase):
         self.assertEquals(errors.msg, expected_exception.msg, 'message is invalid')
 
     def test_set_function_NonexistentFunctionUsed_ShouldReturnNoSuchFunctionError(self):
-        self.evaluator.set_function("math.foobar(2)")
+        self.evaluator.set_function("foobar(2)")
         errors = self.evaluator.errors
 
-        self.assertEqual(errors.message, "'module' object has no attribute 'foobar'")
+        self.assertEqual(errors.message, "name 'foobar' is not defined")
         # "'module' object has no attribute '[^']+'"
 
     def test_evaluate_SimpleConstantFunction_ShouldReturnValue(self):
@@ -61,7 +61,7 @@ class PythonFunctionEvaluatorTests(unittest.TestCase):
         self.assertTrue(math.isnan(result))
 
     def test_evaluate_XIsBeyondAllowedRange_ShouldReturnNotANumber(self):
-        self.evaluator.set_function("math.log(x)")
+        self.evaluator.set_function("log(x)")
         result = self.evaluator.evaluate(-2)
 
         self.assertTrue(math.isnan(result))

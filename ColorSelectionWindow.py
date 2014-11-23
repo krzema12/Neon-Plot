@@ -5,17 +5,8 @@ import gtk
 from PlotWidget import ColorRGB
 
 
-def color_from_hex_to_float(color_as_string):
-    color_as_string = color_as_string.replace('#', '0x', 1)
-    color_as_int = int(color_as_string, 16)
-
-    blue = float(color_as_int % 65536)/65535
-    color_as_int /= 65536
-    green = float(color_as_int % 65536)/65535
-    color_as_int /= 65536
-    red = float(color_as_int % 65536)/65535
-
-    return ColorRGB(red, green, blue)
+def color_from_gtk_to_float(gtk_color):
+    return ColorRGB(gtk_color.red_float, gtk_color.green_float, gtk_color.blue_float)
 
 class ColorSelectionWindow:
 
@@ -35,7 +26,6 @@ class ColorSelectionWindow:
         self.window.show_all()
 
     def on_colorSelector_color_changed(self, color):
-        currentColor = str(color.get_current_color())
-        self.drawableFunction.color = color_from_hex_to_float(currentColor)
+        self.drawableFunction.color = color_from_gtk_to_float(color.get_current_color())
         self.plotWidget.queue_draw()
-        self.eventBox.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color(currentColor))
+        self.eventBox.modify_bg(gtk.STATE_NORMAL, color.get_current_color())
