@@ -24,6 +24,7 @@ class NeonPlot:
         self.addFunctionButton = builder.get_object("addFuncitonButton")
 
         self.viewParamsStatusBar = builder.get_object('viewParamsLabel')
+        self.errorsStatusBar = builder.get_object('errorsLabel')
 
         self.eventbox1 = builder.get_object("eventbox1")
         self.plotWidget = PlotWidget()
@@ -124,6 +125,7 @@ class NeonPlot:
 
         entry.modify_base(gtk.STATE_NORMAL,
                           gtk.gdk.Color("#FFF" if drawableFunction.function_evaluator.can_be_drawn else "#F66"))
+        self.errorsStatusBar.set_text(str(drawableFunction.function_evaluator.errors))
 
         self.plotWidget.queue_draw()
 
