@@ -153,6 +153,8 @@ class NeonPlot:
         response = openDialog.run()
 
         if response == gtk.RESPONSE_OK:
+            self.on_clearList_activate(None)
+
             tree = ElementTree.parse(openDialog.get_filename())
             root = tree.getroot()
 
