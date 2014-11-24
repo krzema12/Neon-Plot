@@ -1,7 +1,7 @@
 Neon Plot - Python function plotter
 ===================================
 
-(screenshot)
+![Screenshot of Neon Plot v1.0](/Stuff/Neon-Plot-1.0.png?raw=true "Neon Plot v1.0")
 
 This application lets you draw single variable mathematical functions, expressed in Python (so any expression that returns a number can be treated as such function). It lets you draw multiple functions at once, move around the graph and save/load the functions from an XML file.
 
