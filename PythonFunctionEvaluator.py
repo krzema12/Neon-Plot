@@ -25,11 +25,11 @@ class PythonFunctionEvaluator(object):
 
             if type(float(val)) is not float:
                 return
-        except (SyntaxError, AttributeError, NameError) as ex:
+        except (SyntaxError, AttributeError, NameError, TypeError, ValueError) as ex:
             self.errors = ex
             return
         except Exception as e:  # unknown error
-            print e
+            print str(type(e)) + ': ' + str(e)
             return
 
         self.can_be_drawn = True

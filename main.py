@@ -11,6 +11,7 @@ from DrawableFunction import DrawableFunction
 from ColorSelectionWindow import ColorSelectionWindow
 from PlotWidget import PlotWidget
 from ColorSelectionWindow import color_from_gtk_to_float
+from PolishErrorMessageTranslator import translate_to_polish
 
 
 def prettify(elem):
@@ -225,8 +226,10 @@ class NeonPlot:
         drawableFunction.function_evaluator.set_function(newText)
 
         entry.modify_base(gtk.STATE_NORMAL,
-                          gtk.gdk.Color("#FFF" if drawableFunction.function_evaluator.can_be_drawn else "#F66"))
-        self.errorsStatusBar.set_text(str(drawableFunction.function_evaluator.errors))
+                          gtk.gdk.Color("#FFF"
+                                        if drawableFunction.function_evaluator.can_be_drawn or newText
+                                        is "" else "#F66"))
+        self.errorsStatusBar.set_text(translate_to_polish(drawableFunction.function_evaluator.errors))
 
         self.plotWidget.queue_draw()
 
