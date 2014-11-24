@@ -76,12 +76,13 @@ class PlotWidget(gtk.DrawingArea):
                         gtk.gdk.BUTTON_PRESS_MASK | gtk.gdk.BUTTON_RELEASE_MASK)
 
         self.functions = []
-        self.center = Point(0.0, 0.0)
-        self.scale = Point(100.0, 100.0)
-        self.__calculate_grid_spacing()
+        self.center = None
+        self.scale = None
+        self.reset_view()
         self.cursor_position = None
         self.cursor_position_before_dragging = None
         self.mouse_button_pressed = False
+        self.right_mouse_button_pressed = False
         self.area = gtk.gdk.Rectangle(0, 0, 0, 0)
 
         self.show_cursor = True
@@ -89,6 +90,24 @@ class PlotWidget(gtk.DrawingArea):
 
     def do_realize(self):
         gtk.DrawingArea.do_realize(self)
+
+    def reset_view(self):
+        self.center = Point(0.0, 0.0)
+        self.scale = Point(100.0, 100.0)
+        self.__calculate_grid_spacing()
+        self.update_view_info()
+
+    def zoom_in(self):
+        self.scale *= self.SCROLL_RATIO
+        self.__calculate_grid_spacing()
+        self.update_view_info()
+        self.queue_draw()
+
+    def zoom_out(self):
+        self.scale /= self.SCROLL_RATIO
+        self.__calculate_grid_spacing()
+        self.update_view_info()
+        self.queue_draw()
 
     def motion_notify_event(self, widget, event):
         if self.cursor_position is None:
@@ -118,17 +137,23 @@ class PlotWidget(gtk.DrawingArea):
         z = self.to_plot_coordinates(self.cursor_position)
         g = z - self.center
 
-        if event.direction == gdk.SCROLL_UP:
-            g /= self.SCROLL_RATIO
+        if self.mouse_button_pressed is False and self.right_mouse_button_pressed is False:
+            localScrollRatio = Point(self.SCROLL_RATIO, self.SCROLL_RATIO)
         else:
-            g *= self.SCROLL_RATIO
+            localScrollRatio = Point(self.SCROLL_RATIO if self.right_mouse_button_pressed else 1.0,
+                                     self.SCROLL_RATIO if self.mouse_button_pressed else 1.0)
+
+        if event.direction == gdk.SCROLL_UP:
+            g /= localScrollRatio
+        else:
+            g *= localScrollRatio
 
         self.center = z - g
 
         if event.direction == gdk.SCROLL_UP:
-            self.scale *= self.SCROLL_RATIO
+            self.scale *= localScrollRatio
         else:
-            self.scale /= self.SCROLL_RATIO
+            self.scale /= localScrollRatio
 
         self.__calculate_grid_spacing()
         self.update_view_info()
@@ -145,10 +170,17 @@ class PlotWidget(gtk.DrawingArea):
 
     def button_press_event(self, widget, args):
         self.cursor_position_before_dragging = copy.copy(self.cursor_position)
-        self.mouse_button_pressed = True
+
+        if args.button == 1:
+            self.mouse_button_pressed = True
+        elif args.button == 3:
+            self.right_mouse_button_pressed = True
 
     def button_release_event(self, widget, args):
-        self.mouse_button_pressed = False
+        if args.button == 1:
+            self.mouse_button_pressed = False
+        elif args.button == 3:
+            self.right_mouse_button_pressed = False
 
     def to_screen_coordinates(self, point):
         x = point - self.center

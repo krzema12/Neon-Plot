@@ -4,9 +4,20 @@ __author__ = 'Piotr Krzemiński'
 
 import gtk
 from PythonFunctionEvaluator import PythonFunctionEvaluator
+from xml.etree.ElementTree import Element, SubElement, Comment, tostring
+from xml.etree import ElementTree
+from xml.dom import minidom
 from DrawableFunction import DrawableFunction
 from ColorSelectionWindow import ColorSelectionWindow
 from PlotWidget import PlotWidget
+
+
+def prettify(elem):
+    """Return a pretty-printed XML string for the Element.
+    """
+    rough_string = ElementTree.tostring(elem, 'utf-8')
+    reparsed = minidom.parseString(rough_string)
+    return reparsed.toprettyxml(indent="\t")
 
 
 class NeonPlot:
@@ -16,9 +27,9 @@ class NeonPlot:
         builder.add_from_file(filename)
         builder.connect_signals(self)
 
-        window = builder.get_object("mainWindow")
-        window.connect("destroy", self.onDeleteWindow)
-        window.show_all()
+        self.window = builder.get_object("mainWindow")
+        self.window.connect("destroy", self.onDeleteWindow)
+        self.window.show_all()
 
         self.functionsVbox = builder.get_object("functionsVbox")
         self.addFunctionButton = builder.get_object("addFuncitonButton")
@@ -114,6 +125,60 @@ class NeonPlot:
 
         # placing cursor in the newly added Entry
         textField.grab_focus()
+
+    def on_saveToFile_activate(self, widget):
+        saveDialog = gtk.FileChooserDialog('Wskaż plik gdzie zapisać funkcje',
+                                           self.window, gtk.FILE_CHOOSER_ACTION_SAVE,
+                                           (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+                                           gtk.STOCK_SAVE, gtk.RESPONSE_OK))
+        saveDialog.set_default_response(gtk.RESPONSE_OK)
+
+        filter = gtk.FileFilter()
+        filter.set_name("Pliki XML (*.xml)")
+        filter.add_pattern("*.xml")
+        saveDialog.add_filter(filter)
+
+        response = saveDialog.run()
+
+        if response == gtk.RESPONSE_OK:
+            functions = self.plotWidget.functions
+
+            top = Element('functions')
+
+            for f in functions:
+                functionTag = SubElement(top, 'function')
+
+                functionTag.set('active', str(f.enabled))
+
+                colorTag = SubElement(functionTag, 'color')
+                colorTag.set('red', str(f.color.r))
+                colorTag.set('green', str(f.color.g))
+                colorTag.set('blue', str(f.color.b))
+
+                codeTag = SubElement(functionTag, 'code')
+                codeTag.text = f.function_evaluator.function_string
+
+            with open(saveDialog.get_filename(), 'w') as file:
+                file.write(prettify(top))
+
+        saveDialog.destroy()
+
+    def on_clearList_activate(self, widget):
+        self.plotWidget.functions = []
+
+        for item in self.functionsVbox:
+            if type(item) is gtk.EventBox:
+                self.functionsVbox.remove(item)
+
+    def on_zoomIn_activate(self, widget):
+        self.plotWidget.zoom_in()
+
+    def on_zoomOut_activate(self, widget):
+        self.plotWidget.zoom_out()
+
+    def on_reset_activate(self, widget):
+        self.plotWidget.reset_view()
+        self.plotWidget.queue_draw()
 
     def showOrHideFunction(self, checkBox, drawableFunction):
         drawableFunction.enabled = checkBox.get_active()

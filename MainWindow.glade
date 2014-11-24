@@ -34,6 +34,7 @@
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">_Wyczyść listę</property>
                         <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_clearList_activate" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -52,6 +53,7 @@
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">_Zapisz do pliku...</property>
                         <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_saveToFile_activate" swapped="no"/>
                       </object>
                     </child>
                   </object>
@@ -76,6 +78,7 @@
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">_Przybliż</property>
                         <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_zoomIn_activate" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -85,6 +88,7 @@
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">_Oddal</property>
                         <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_zoomOut_activate" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -94,6 +98,7 @@
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">_Resetuj</property>
                         <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_reset_activate" swapped="no"/>
                       </object>
                     </child>
                     <child>
