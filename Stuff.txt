@@ -3,5 +3,4 @@ Blur
     http://taschenorakel.de/mathias/2008/11/24/blur-effect-cairo/
 
 Błędy:
-    !!! nie wiem jak przetłumaczyć: sin() takes exactly one argument (0 given)!!!
     !!! nie wiem jak przetłumaczyć: unsupported operand type(s) for +: 'float' and 'type'!!!
