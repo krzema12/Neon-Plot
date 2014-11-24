@@ -8,6 +8,9 @@ from PlotWidget import ColorRGB
 def color_from_gtk_to_float(gtk_color):
     return ColorRGB(gtk_color.red_float, gtk_color.green_float, gtk_color.blue_float)
 
+def color_from_float_to_gtk(color):
+    return gtk.gdk.Color(color.r, color.g, color.b)
+
 class ColorSelectionWindow:
 
     def __init__(self, plotWidget, drawableFunction, eventBox):
@@ -21,6 +24,8 @@ class ColorSelectionWindow:
         builder.connect_signals(self)
 
         self.window = builder.get_object("colorSelectionWindow")
+        self.colorSelector = builder.get_object("colorSelector")
+        self.colorSelector.set_current_color(color_from_float_to_gtk(drawableFunction.color))
 
     def show_window(self):
         self.window.show_all()

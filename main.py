@@ -10,6 +10,7 @@ from xml.dom import minidom
 from DrawableFunction import DrawableFunction
 from ColorSelectionWindow import ColorSelectionWindow
 from PlotWidget import PlotWidget
+from ColorSelectionWindow import color_from_gtk_to_float
 
 
 def prettify(elem):
@@ -126,11 +127,46 @@ class NeonPlot:
         # placing cursor in the newly added Entry
         textField.grab_focus()
 
+        return eventBox, textField, checkBox, drawableFunction
+
+    def on_readFromFile_activate(self, widget):
+        openDialog = gtk.FileChooserDialog('Wskaż plik, z którego mają zostać załadowane funkcje',
+                                           self.window, gtk.FILE_CHOOSER_ACTION_OPEN,
+                                           (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+                                            gtk.STOCK_OPEN, gtk.RESPONSE_OK))
+        openDialog.set_default_response(gtk.RESPONSE_OK)
+
+        filter = gtk.FileFilter()
+        filter.set_name("Pliki XML (*.xml)")
+        filter.add_pattern("*.xml")
+        openDialog.add_filter(filter)
+
+        response = openDialog.run()
+
+        if response == gtk.RESPONSE_OK:
+            tree = ElementTree.parse(openDialog.get_filename())
+            root = tree.getroot()
+
+            for f in root:
+                eventBox, textField, checkBox, drawableFunction = self.addFunction(None)
+
+                color = f.find('color')
+
+                gtkColor = gtk.gdk.Color(float(color.get('red')),
+                                         float(color.get('green')),
+                                         float(color.get('blue')))
+                drawableFunction.color = color_from_gtk_to_float(gtkColor)
+                eventBox.modify_bg(gtk.STATE_NORMAL, gtkColor)
+                checkBox.set_active(f.get('active') == 'True')
+                textField.set_text(f.find('code').text.strip())
+
+        openDialog.destroy()
+
     def on_saveToFile_activate(self, widget):
         saveDialog = gtk.FileChooserDialog('Wskaż plik gdzie zapisać funkcje',
                                            self.window, gtk.FILE_CHOOSER_ACTION_SAVE,
                                            (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-                                           gtk.STOCK_SAVE, gtk.RESPONSE_OK))
+                                            gtk.STOCK_SAVE, gtk.RESPONSE_OK))
         saveDialog.set_default_response(gtk.RESPONSE_OK)
 
         filter = gtk.FileFilter()
