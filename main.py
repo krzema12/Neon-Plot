@@ -61,6 +61,14 @@ class NeonPlot:
     def viewGridlines_toggled_cb(self, widget):
         self.plotWidget.show_gridlines = widget.active
 
+    def on_howToUse_activate(self, widget):
+        filename = "HowToWindow.glade"
+        builder = gtk.Builder()
+        builder.add_from_file(filename)
+        builder.connect_signals(self)
+        window = builder.get_object("howToWindow")
+        window.show_all()
+
     def open_about_window_cb(self, widget):
         filename = "AboutWindow.glade"
         builder = gtk.Builder()

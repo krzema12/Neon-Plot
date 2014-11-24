@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk+" version="2.24"/>
+  <!-- interface-naming-policy project-wide -->
+  <object class="GtkTextBuffer" id="howToText">
+    <property name="text" translatable="yes">
+OPEROWANIE NA ZESTAWIE FUNKCJI
+
+• Dodawanie nowej funkcji: kliknij przycisk "Dodaj" w prawej części okna. Pokaże się pole tekstowe na szarym tle, wraz z kilkoma mniejszymi elementami. W tym polu tekstowym należy podać kod funkcji w języku Python.
+
+• Zapisywanie/odczytywanie funkcji do/z pliku: w menu "Funkcje" dostępne są odpowiednie opcje. Za każdym razem należy wskazać plik, z którego mają być odczytane lub zapisane funkcje. Uwaga: przy zapisie należy ręcznie podać rozszerzenie .xml.
+
+PORUSZANIE SIĘ PO WYKRESIE
+
+• Przybliżanie/oddalanie: rolka myszki (od siebie - przybliżanie, do siebie - oddalanie) lub odpowiednie funkcje dostępne w menu "Widok".
+
+• Przybliżanie/oddalanie na jednej z osi: należy przytrzymać lewy lub prawy przycisk myszy oraz skorzystać z rolki aby zmienić zakres odpowiednio osi OY lub OX.
+
+• Przywracanie początkowego widoku: dostepna jest funkcja "Resetuj" w menu "Widok". Ustawia ona punkt środkowy jako (0, 0) i skalę na (100, 100) pikseli na jednostkę.
+
+DOSTOSOWYWANIE WYGLĄDU WYKRESU
+
+• Zmiana koloru wykresu funkcji: dla każdej funkcji można wybrać kolor linii, za pomocą której funkcja będzie rysowana. Jest to możliwe za pomocą przycisku "zmień kolor" przy każdej z funkcji.
+</property>
+  </object>
+  <object class="GtkWindow" id="howToWindow">
+    <property name="can_focus">False</property>
+    <property name="title" translatable="yes">Jak używać?</property>
+    <property name="modal">True</property>
+    <property name="window_position">center</property>
+    <property name="default_width">440</property>
+    <child>
+      <object class="GtkTextView" id="textview1">
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="editable">False</property>
+        <property name="wrap_mode">word</property>
+        <property name="left_margin">15</property>
+        <property name="right_margin">15</property>
+        <property name="cursor_visible">False</property>
+        <property name="buffer">howToText</property>
+      </object>
+    </child>
+  </object>
+</interface>
